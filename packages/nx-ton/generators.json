@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "nx-ton",
+  "version": "0.0.1",
+  "generators": {
+    "nx-ton": {
+      "factory": "./src/generators/nx-ton/generator",
+      "schema": "./src/generators/nx-ton/schema.json",
+      "description": "nx-ton generator"
+    }
+  }
+}
