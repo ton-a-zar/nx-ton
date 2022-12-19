@@ -1,6 +1,6 @@
 {
   "name": "@ton-a-z/nx-ton",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "src/index.js",
   "generators": "./generators.json",
   "executors": "./executors.json",
@@ -19,8 +19,8 @@
     "prando": "^6.0.1",
     "fast-glob": "^3.2.12",
     "ton-contract-executor": "^0.6.2",
-    "axios": "^0.25.0"
-
+    "axios": "^0.25.0",
+    "ts-node": "10.9.1"
   },
   "peerDependencies": {
     "@nrwl/devkit": "^15.3.3"

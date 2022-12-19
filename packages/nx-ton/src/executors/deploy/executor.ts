@@ -29,7 +29,9 @@ import { DeployExecutorSchema } from './schema';
 axiosThrottle.use(axios, { requestsPerSecond: 0.5 });
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('ts-node').register({});
+require('ts-node').register({
+  transpileOnly: true,
+});
 
 export default async function runExecutor(
   options: DeployExecutorSchema,
