@@ -13,6 +13,7 @@
         "tsConfig": "packages/nx-ton/tsconfig.lib.json",
         "assets": [
           "packages/nx-ton/*.md",
+          "packages/nx-ton/fiftlib/*.fif",
           {
             "input": "./packages/nx-ton/src",
             "glob": "**/!(*.ts)",

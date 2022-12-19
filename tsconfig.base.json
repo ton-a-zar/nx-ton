@@ -7,6 +7,7 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
@@ -15,7 +16,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@noctifer20/nx-ton": ["packages/nx-ton/src/index.ts"]
+      "@ton-a-z/nx-ton": ["packages/nx-ton/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

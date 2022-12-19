@@ -24,7 +24,18 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
+      "plugins": ["import"],
+      "rules": {
+        "import/prefer-default-export": "off",
+        "import/newline-after-import": "error",
+        "import/order": [
+          "error",
+          {
+            "groups": ["builtin", "external", "internal"],
+            "newlines-between": "always"
+          }
+        ]
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

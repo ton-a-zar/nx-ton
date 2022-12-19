@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import {
   addProjectConfiguration,
   formatFiles,
@@ -7,7 +9,8 @@ import {
   offsetFromRoot,
   Tree,
 } from '@nrwl/devkit';
-import * as path from 'path';
+import { getRelativePathToRootTsConfig } from '@nrwl/workspace/src/utilities/typescript';
+
 import { NxTonGeneratorSchema } from './schema';
 
 interface NormalizedSchema extends NxTonGeneratorSchema {
@@ -45,8 +48,10 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
     ...options,
     ...names(options.name),
     offsetFromRoot: offsetFromRoot(options.projectRoot),
+    rootTsConfigPath: getRelativePathToRootTsConfig(tree, options.projectRoot),
     template: '',
   };
+
   generateFiles(
     tree,
     path.join(__dirname, 'files'),
@@ -63,7 +68,34 @@ export default async function (tree: Tree, options: NxTonGeneratorSchema) {
     sourceRoot: `${normalizedOptions.projectRoot}/src`,
     targets: {
       build: {
-        executor: '@noctifer20/nx-ton:build',
+        executor: '@ton-a-z/nx-ton:build',
+      },
+      test: {
+        executor: '@nrwl/jest:jest',
+        outputs: ['{workspaceRoot}/coverage/{projectRoot}'],
+        dependsOn: [
+          {
+            target: 'build',
+            projects: 'self',
+          },
+        ],
+        options: {
+          jestConfig: `${normalizedOptions.projectRoot}/jest.config.ts`,
+          passWithNoTests: true,
+        },
+      },
+      deploy: {
+        executor: '@ton-a-z/nx-ton:deploy',
+        dependsOn: [
+          {
+            target: 'build',
+            projects: 'self',
+          },
+        ],
+        options: {
+          workchain: 0,
+          isTestnet: true,
+        },
       },
     },
     tags: normalizedOptions.parsedTags,

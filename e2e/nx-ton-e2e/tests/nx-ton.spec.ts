@@ -14,7 +14,7 @@ describe('nx-ton e2e', () => {
   // on a unique project in the workspace, such that they
   // are not dependant on one another.
   beforeAll(() => {
-    ensureNxProject('@noctifer20/nx-ton', 'dist/packages/nx-ton');
+    ensureNxProject('@ton-a-z/nx-ton', 'dist/packages/nx-ton');
   });
 
   afterAll(() => {
@@ -23,34 +23,25 @@ describe('nx-ton e2e', () => {
     runNxCommandAsync('reset');
   });
 
-  it('should create nx-ton', async () => {
+  it('should create and build library', async () => {
     const project = uniq('nx-ton');
-    await runNxCommandAsync(`generate @noctifer20/nx-ton:nx-ton ${project}`);
+    await runNxCommandAsync(`generate @ton-a-z/nx-ton:library ${project}`);
     const result = await runNxCommandAsync(`build ${project}`);
-    expect(result.stdout).toContain('Executor ran');
+    expect(result.stdout).toContain(
+      'NX   Successfully ran target build for project'
+    );
   }, 120000);
 
-  describe('--directory', () => {
-    it('should create src in the specified directory', async () => {
-      const project = uniq('nx-ton');
-      await runNxCommandAsync(
-        `generate @noctifer20/nx-ton:nx-ton ${project} --directory subdir`
-      );
-      expect(() =>
-        checkFilesExist(`libs/subdir/${project}/src/index.ts`)
-      ).not.toThrow();
-    }, 120000);
-  });
-
-  describe('--tags', () => {
-    it('should add tags to the project', async () => {
-      const projectName = uniq('nx-ton');
-      ensureNxProject('@noctifer20/nx-ton', 'dist/packages/nx-ton');
-      await runNxCommandAsync(
-        `generate @noctifer20/nx-ton:nx-ton ${projectName} --tags e2etag,e2ePackage`
-      );
-      const project = readJson(`libs/${projectName}/project.json`);
-      expect(project.tags).toEqual(['e2etag', 'e2ePackage']);
-    }, 120000);
-  });
+  it('should deploy library', async () => {
+    const project = uniq('nx-ton');
+    await runNxCommandAsync(`generate @ton-a-z/nx-ton:library ${project}`);
+    const result = await runNxCommandAsync(`deploy ${project}`, {
+      env: {
+        TON_A_Z_DEPLOY_MNEMONIC: process.env.TON_A_Z_DEPLOY_MNEMONIC,
+      },
+    });
+    expect(result.stdout).toContain(
+      'NX   Successfully ran target deploy for project'
+    );
+  }, 120000);
 });

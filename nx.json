@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "noctifer20",
+  "npmScope": "ton-a-z",
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
