@@ -23,7 +23,8 @@
     "ts-node": "10.9.1"
   },
   "peerDependencies": {
-    "@nrwl/devkit": "^15.3.3"
+    "@nrwl/devkit": "^15.3.3",
+    "@nrwl/jest": "^15.3.3"
   },
   "overrides": {
     "axios": "^0.25.0"

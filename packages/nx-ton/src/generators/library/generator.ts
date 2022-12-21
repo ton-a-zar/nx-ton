@@ -2,14 +2,22 @@ import * as path from 'path';
 
 import {
   addProjectConfiguration,
+  ensurePackage,
   formatFiles,
   generateFiles,
+  GeneratorCallback,
   getWorkspaceLayout,
+  joinPathFragments,
   names,
   offsetFromRoot,
+  readProjectConfiguration,
   Tree,
+  updateProjectConfiguration,
 } from '@nrwl/devkit';
 import { getRelativePathToRootTsConfig } from '@nrwl/workspace/src/utilities/typescript';
+import { nxVersion } from 'nx/src/utils/versions';
+import { Linter, lintProjectGenerator } from '@nrwl/linter';
+import { jestProjectGenerator } from '@nrwl/jest';
 
 import { NxTonGeneratorSchema } from './schema';
 
@@ -18,6 +26,39 @@ interface NormalizedSchema extends NxTonGeneratorSchema {
   projectRoot: string;
   projectDirectory: string;
   parsedTags: string[];
+}
+
+function addLint(
+  tree: Tree,
+  options: NormalizedSchema
+): Promise<GeneratorCallback> {
+  return lintProjectGenerator(tree, {
+    project: options.projectName,
+    unitTestRunner: 'jest',
+    linter: Linter.EsLint,
+    skipFormat: true,
+    tsConfigPaths: [
+      joinPathFragments(options.projectRoot, 'tsconfig.lib.json'),
+    ],
+    eslintFilePatterns: [`${options.projectRoot}/**/*.ts`],
+  });
+}
+
+async function addJest(
+  tree: Tree,
+  options: NormalizedSchema
+): Promise<GeneratorCallback> {
+  await ensurePackage(tree, '@nrwl/jest', nxVersion);
+  return await jestProjectGenerator(tree, {
+    ...options,
+    project: options.projectName,
+    setupFile: 'none',
+    supportTsx: false,
+    skipSerializers: true,
+    testEnvironment: 'node',
+    skipFormat: true,
+    compiler: 'tsc',
+  });
 }
 
 function normalizeOptions(
@@ -62,6 +103,7 @@ function addFiles(tree: Tree, options: NormalizedSchema) {
 
 export default async function (tree: Tree, options: NxTonGeneratorSchema) {
   const normalizedOptions = normalizeOptions(tree, options);
+
   addProjectConfiguration(tree, normalizedOptions.projectName, {
     root: normalizedOptions.projectRoot,
     projectType: 'library',
@@ -69,20 +111,6 @@ export default async function (tree: Tree, options: NxTonGeneratorSchema) {
     targets: {
       build: {
         executor: '@ton-a-z/nx-ton:build',
-      },
-      test: {
-        executor: '@nrwl/jest:jest',
-        outputs: ['{workspaceRoot}/coverage/{projectRoot}'],
-        dependsOn: [
-          {
-            target: 'build',
-            projects: 'self',
-          },
-        ],
-        options: {
-          jestConfig: `${normalizedOptions.projectRoot}/jest.config.ts`,
-          passWithNoTests: true,
-        },
       },
       deploy: {
         executor: '@ton-a-z/nx-ton:deploy',
@@ -100,6 +128,31 @@ export default async function (tree: Tree, options: NxTonGeneratorSchema) {
     },
     tags: normalizedOptions.parsedTags,
   });
+
   addFiles(tree, normalizedOptions);
+
+  await addJest(tree, normalizedOptions);
+  await addLint(tree, normalizedOptions);
+  const projectFinalConfiguration = readProjectConfiguration(
+    tree,
+    normalizedOptions.projectName
+  );
+
+  updateProjectConfiguration(tree, normalizedOptions.projectName, {
+    ...projectFinalConfiguration,
+    targets: {
+      ...projectFinalConfiguration.targets,
+      test: {
+        ...projectFinalConfiguration.targets.test,
+        dependsOn: [
+          {
+            target: 'build',
+            projects: 'self',
+          },
+        ],
+      },
+    },
+  });
+
   await formatFiles(tree);
 }
