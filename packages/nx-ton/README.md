@@ -3,6 +3,9 @@
 Nx plugin for `generating`, `building`, `testing` and `deploying` func smart contracts.
 
 ## Installation
+Before installing the plugin, ensure `func` and `fift` binaries are available in `$PATH`. 
+Refer to [Official Installation Guide](https://ton.org/docs/develop/smart-contracts/environment/installation#1-download) for installing binaries.
+
 For yarn
 ```shell
 yarn add -D @ton-a-z/nx-ton
